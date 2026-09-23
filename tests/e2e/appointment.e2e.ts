@@ -1,8 +1,27 @@
 const baseUrl = process.env.E2E_BASE_URL ?? 'http://localhost:3000/dev';
+const apiKey = process.env.DEMO_API_KEY ?? '';
 
 describe('Appointment API over HTTP', () => {
+  beforeAll(() => {
+    if (!apiKey) {
+      throw new Error('Defina DEMO_API_KEY com a chave exibida pelo servidor.');
+    }
+  });
+
+  it.each([
+    ['GET', '/agendas'],
+    ['POST', '/agendamento'],
+    ['POST', '/triagem'],
+  ])('rejects %s %s without an API key', async (method, path) => {
+    const response = await fetch(`${baseUrl}${path}`, { method });
+
+    expect(response.status).toBe(403);
+  });
+
   it('lists doctors and available slots on GET /agendas', async () => {
-    const response = await fetch(`${baseUrl}/agendas`);
+    const response = await fetch(`${baseUrl}/agendas`, {
+      headers: { 'x-api-key': apiKey },
+    });
     const body: unknown = await response.json();
 
     expect(response.status).toBe(200);
@@ -40,7 +59,7 @@ describe('Appointment API over HTTP', () => {
     const send = () =>
       fetch(`${baseUrl}/agendamento`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey },
         body: payload,
       });
 
@@ -74,7 +93,7 @@ describe('Appointment API over HTTP', () => {
   it('rejects an invalid payload on POST /agendamento', async () => {
     const response = await fetch(`${baseUrl}/agendamento`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey },
       body: '{}',
     });
     const body: unknown = await response.json();

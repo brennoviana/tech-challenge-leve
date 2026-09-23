@@ -17,7 +17,11 @@ Preencha `SERVERLESS_LICENSE_KEY` e `OPENAI_API_KEY` no `.env` ou defina essas v
 npm run dev
 ```
 
-Use a URL exibida pelo `serverless-offline`. Por padrão, as rotas locais ficam em `http://localhost:3000/dev`.
+Use a URL exibida pelo `serverless-offline`. Por padrão, as rotas locais ficam em `http://localhost:3000/dev`. Para chamar qualquer rota, copie a chave exibida no terminal como `Key with token` e defina `DEMO_API_KEY` no seu terminal. Essa chave serve apenas para o ambiente local; a AWS usa uma chave própria no deploy.
+
+```bash
+export DEMO_API_KEY='cole-a-chave-exibida-no-terminal'
+```
 
 ## API
 
@@ -30,7 +34,8 @@ Use a URL exibida pelo `serverless-offline`. Por padrão, as rotas locais ficam 
 Para listar as agendas:
 
 ```bash
-curl -i http://localhost:3000/dev/agendas
+curl -i http://localhost:3000/dev/agendas \
+  -H "x-api-key: $DEMO_API_KEY"
 ```
 
 Para criar um agendamento:
@@ -38,6 +43,7 @@ Para criar um agendamento:
 ```bash
 curl -i -X POST http://localhost:3000/dev/agendamento \
   -H 'Content-Type: application/json' \
+  -H "x-api-key: $DEMO_API_KEY" \
   -d '{"agendamento":{"medico_id":1,"paciente":"Carlos Almeida","data_horario":"2026-06-10 09:00"}}'
 ```
 
@@ -48,8 +54,11 @@ Para solicitar uma orientação inicial de triagem:
 ```bash
 curl -i -X POST http://localhost:3000/dev/triagem \
   -H 'Content-Type: application/json' \
+  -H "x-api-key: $DEMO_API_KEY" \
   -d '{"sintomas":"Estou com manchas na pele há dois dias."}'
 ```
+
+Todas as rotas exigem o header `x-api-key`; sem uma chave válida, o API Gateway responde `403` antes de chamar a Lambda. No deploy, consulte a chave gerada com `npx serverless info --stage demo` e compartilhe o valor apenas com os avaliadores. O plano de uso define uma cota-alvo compartilhada de 100 chamadas por dia, com taxa de 1 chamada por segundo e pico de 2. Esses limites são aproximados e não garantem um teto de gastos; a API key também não substitui autenticação. Não coloque a chave em uma página pública nem no repositório. Após a demonstração, revogue a chave ou remova o ambiente.
 
 O campo `sintomas` aceita texto de 3 a 1000 caracteres. A resposta contém `triagem.prioridade` (`emergencia`, `avaliacao_breve` ou `consulta_eletiva`), `triagem.especialidade_sugerida`, `triagem.orientacao` e `aviso`. Por exemplo:
 
@@ -66,16 +75,20 @@ O campo `sintomas` aceita texto de 3 a 1000 caracteres. A resposta contém `tria
 
 A triagem é uma orientação automatizada, sem diagnóstico, prescrição ou garantia de disponibilidade da especialidade sugerida. Ela não substitui avaliação profissional. O relato é enviado à API da OpenAI; evite incluir nome, documentos ou outros dados pessoais. A integração usa `store: false`, que desativa o armazenamento da resposta para recuperação pela API, mas não equivale a retenção zero de todos os dados. Consulte os [controles de dados da OpenAI](https://developers.openai.com/api/docs/guides/your-data).
 
+| Situação em qualquer rota                 | Status |
+| ----------------------------------------- | ------ |
+| Chave de demonstração ausente ou inválida | `403`  |
+
 | Situação no `POST`                     | Status |
 | -------------------------------------- | ------ |
 | Payload ausente ou inválido            | `400`  |
 | Médico inexistente                     | `404`  |
 | Horário fora da agenda ou já reservado | `409`  |
 
-| Situação no `POST /triagem`                  | Status |
-| -------------------------------------------- | ------ |
-| JSON ausente, inválido ou sintomas inválidos | `400`  |
-| API de triagem indisponível ou sem chave     | `503`  |
+| Situação no `POST /triagem`                     | Status |
+| ----------------------------------------------- | ------ |
+| JSON ausente, inválido ou sintomas inválidos    | `400`  |
+| API de triagem indisponível ou sem chave OpenAI | `503`  |
 
 ## Verificações
 
@@ -87,7 +100,7 @@ npm run lint
 npm run format:check
 ```
 
-Os testes ponta a ponta fazem requisições HTTP reais. Com `npm run dev` ativo em outro terminal, execute `npm run test:e2e`. Reinicie o servidor antes de repetir os testes, pois as reservas ficam em memória. Se a API estiver em outra URL, defina `E2E_BASE_URL` com a URL base completa, incluindo o estágio.
+Os testes ponta a ponta fazem requisições HTTP reais. Com `npm run dev` ativo em outro terminal, defina `DEMO_API_KEY` com a chave exibida pelo servidor e execute `npm run test:e2e`. Reinicie o servidor antes de repetir os testes, pois as reservas ficam em memória. Se a API estiver em outra URL, defina `E2E_BASE_URL` com a URL base completa, incluindo o estágio, e use a chave desse ambiente.
 
 ## Organização
 
@@ -106,7 +119,7 @@ As Lambdas chamam handlers HTTP finos. O `POST` valida o JSON com um schema Zod 
 Configure suas credenciais AWS, `SERVERLESS_LICENSE_KEY` e `OPENAI_API_KEY` no ambiente de deploy. Depois execute:
 
 ```bash
-npx serverless deploy
+npx serverless deploy --stage demo
 ```
 
-O `serverless.yml` configura API Gateway REST e runtime `nodejs24.x`. O deploy não é necessário para executar a API localmente.
+O `serverless.yml` configura API Gateway REST e runtime `nodejs24.x`. O deploy não é necessário para executar a API localmente. Para consultar a chave e a URL do ambiente de demonstração, use `npx serverless info --stage demo` e mantenha a chave fora de canais públicos.

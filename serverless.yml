@@ -4,6 +4,16 @@ licenseKey: ${env:SERVERLESS_LICENSE_KEY}
 provider:
   name: aws
   runtime: nodejs24.x
+  apiGateway:
+    apiKeys:
+      - name: ${sls:stage}-api-demo
+    usagePlan:
+      quota:
+        limit: 100
+        period: DAY
+      throttle:
+        rateLimit: 2
+        burstLimit: 3
   environment:
     LOG_LEVEL: ${env:LOG_LEVEL, 'info'}
 
@@ -17,12 +27,14 @@ functions:
       - http:
           path: agendas
           method: get
+          private: true
   createAppointment:
     handler: src/features/create-appointment/infra/aws/lambda.handler
     events:
       - http:
           path: agendamento
           method: post
+          private: true
   triage:
     handler: src/features/triage/infra/aws/lambda.handler
     timeout: 15
@@ -33,3 +45,4 @@ functions:
       - http:
           path: triagem
           method: post
+          private: true
