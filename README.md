@@ -4,7 +4,7 @@ API do teste técnico Leve Saúde, feita com Node.js, TypeScript, Serverless Fra
 
 ## Executar localmente
 
-Requer Node.js 20 ou superior e uma License Key do Serverless Framework v4.
+Requer Node.js 20.6 ou superior e uma License Key do Serverless Framework v4.
 
 ```bash
 npm ci
@@ -17,7 +17,7 @@ Preencha `SERVERLESS_LICENSE_KEY` e `OPENAI_API_KEY` no `.env` ou defina essas v
 npm run dev
 ```
 
-Use a URL exibida pelo `serverless-offline`. Por padrão, as rotas locais ficam em `http://localhost:3000/dev`. Para chamar qualquer rota, copie a chave exibida no terminal como `Key with token` e defina `DEMO_API_KEY` no seu terminal. Essa chave serve apenas para o ambiente local; a AWS usa uma chave própria no deploy.
+Use a URL exibida pelo `serverless-offline`. A porta HTTP local é definida por `HTTP_PORT` no `.env` (padrão `3000`); altere esse valor e reinicie o servidor para usar outra porta. Com o valor padrão, as rotas ficam em `http://localhost:3000/dev`. Se mudar a porta, ajuste também `base_url` no Insomnia; os testes ponta a ponta usam `HTTP_PORT` automaticamente. Para usar os exemplos com `curl`, copie a chave exibida no terminal como `Key with token` e defina `DEMO_API_KEY` no seu terminal. Essa chave serve apenas para o ambiente local; a AWS usa uma chave própria no deploy.
 
 ```bash
 export DEMO_API_KEY='cole-a-chave-exibida-no-terminal'
@@ -104,7 +104,7 @@ npm run lint
 npm run format:check
 ```
 
-Os testes ponta a ponta fazem requisições HTTP reais. Com `npm run dev` ativo em outro terminal, defina `DEMO_API_KEY` com a chave exibida pelo servidor e execute `npm run test:e2e`. Reinicie o servidor antes de repetir os testes, pois as reservas ficam em memória. Se a API estiver em outra URL, defina `E2E_BASE_URL` com a URL base completa, incluindo o estágio, e use a chave desse ambiente.
+Os testes ponta a ponta fazem requisições HTTP reais. Com `npm run dev` ativo em outro terminal, coloque a chave exibida pelo servidor em `DEMO_API_KEY` no `.env` e execute `npm run test:e2e`. O script carrega `.env` automaticamente; uma variável definida no terminal tem prioridade. Reinicie o servidor antes de repetir os testes, pois as reservas ficam em memória. Se a API estiver em outra URL, defina `E2E_BASE_URL` com a URL base completa, incluindo o estágio, e use a chave desse ambiente.
 
 ## Organização
 

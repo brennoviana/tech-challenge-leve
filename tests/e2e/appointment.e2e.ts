@@ -1,4 +1,6 @@
-const baseUrl = process.env.E2E_BASE_URL ?? 'http://localhost:3000/dev';
+const baseUrl =
+  process.env.E2E_BASE_URL ??
+  `http://localhost:${process.env.HTTP_PORT ?? '3000'}/dev`;
 const apiKey = process.env.DEMO_API_KEY ?? '';
 
 describe('Appointment API over HTTP', () => {

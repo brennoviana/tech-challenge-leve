@@ -20,6 +20,10 @@ provider:
 plugins:
   - serverless-offline
 
+custom:
+  serverless-offline:
+    httpPort: ${env:HTTP_PORT, 3000}
+
 functions:
   listSchedules:
     handler: src/features/list-schedules/infra/aws/lambda.handler

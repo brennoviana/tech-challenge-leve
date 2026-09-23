@@ -3,13 +3,13 @@
   "version": "1.0.0",
   "private": true,
   "engines": {
-    "node": ">=20"
+    "node": ">=20.6"
   },
   "scripts": {
     "dev": "serverless offline",
     "typecheck": "tsc --noEmit",
     "test": "jest --runInBand",
-    "test:e2e": "jest --config jest.e2e.config.cjs --runInBand",
+    "test:e2e": "node --env-file=.env ./node_modules/jest/bin/jest.js --config jest.e2e.config.cjs --runInBand",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
