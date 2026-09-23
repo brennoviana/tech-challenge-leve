@@ -1,0 +1,57 @@
+type: collection.insomnia.rest/5.0
+schema_version: '5.1'
+name: Leve Saúde API
+meta:
+  id: wrk_8a75a53d2ad04d40a2f0e8957b0e0f38
+collection:
+  - name: Listar agendas
+    url: '{{ base_url }}/agendas'
+    method: GET
+    meta:
+      id: req_122fd1a873ea4ba493b15526287cd55f
+    headers:
+      - name: x-api-key
+        value: '{{ api_key }}'
+  - name: Criar agendamento
+    url: '{{ base_url }}/agendamento'
+    method: POST
+    meta:
+      id: req_84776f8267234274a0d8ef37c2253da3
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "agendamento": {
+            "medico_id": 1,
+            "paciente": "Carlos Almeida",
+            "data_horario": "2026-06-10 09:00"
+          }
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: x-api-key
+        value: '{{ api_key }}'
+  - name: Solicitar triagem
+    url: '{{ base_url }}/triagem'
+    method: POST
+    meta:
+      id: req_62d62597aa214b14917b19d674319004
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "sintomas": "Estou com manchas na pele há dois dias."
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: x-api-key
+        value: '{{ api_key }}'
+environments:
+  name: Base Environment
+  meta:
+    id: env_53ce07b862364cb4b223a73f7e5b939c
+  data:
+    base_url: http://localhost:3000/dev
+    api_key: ''

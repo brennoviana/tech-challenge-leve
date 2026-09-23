@@ -31,6 +31,10 @@ export DEMO_API_KEY='cole-a-chave-exibida-no-terminal'
 | `POST` | `/agendamento` | `201` com o agendamento criado           |
 | `POST` | `/triagem`     | `200` com orientação inicial             |
 
+### Collection do Insomnia
+
+Se preferir testar pelo Insomnia, importe o arquivo [insomnia-collection.yaml](doc/insomnia-collection.yaml) em **Import > File**. A collection contém as três rotas e seus exemplos de payload. Em **Base Environment**, preencha `api_key` com a chave exibida pelo `serverless-offline` e mantenha `base_url` como `http://localhost:3000/dev`. Para testar o deploy, troque `base_url` pela URL do estágio (incluindo `/demo`) e use a chave mostrada por `npx serverless info --stage demo`. A collection não inclui chaves reais; a variável `api_key` é preenchida no Insomnia, separadamente da variável de terminal `DEMO_API_KEY`.
+
 Para listar as agendas:
 
 ```bash
