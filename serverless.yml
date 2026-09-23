@@ -39,6 +39,7 @@ functions:
           path: agendas
           method: get
           private: true
+
   createAppointment:
     handler: src/features/create-appointment/infra/aws/lambda.handler
     package:
