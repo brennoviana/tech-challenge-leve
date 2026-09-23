@@ -1,4 +1,4 @@
-import type { CreateAppointmentInput } from '../../application/create-appointment';
+import { CreateAppointmentInput } from '../../application/create-appointment.use-case';
 import { createAppointmentPayloadSchema } from './schema';
 
 export interface CreateAppointmentRequest {

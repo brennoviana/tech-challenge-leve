@@ -5,7 +5,7 @@ import {
 import type {
   CreateAppointmentInput,
   CreateAppointmentResult,
-} from '../../application/create-appointment';
+} from '../../application/create-appointment.use-case';
 import {
   jsonResponse,
   type HttpResponse,

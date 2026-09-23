@@ -1,5 +1,5 @@
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { ListSchedulesUseCase } from '../../application/list-schedules';
+import { ListSchedulesUseCase } from '../../application/list-schedules.use-case';
 import { ListSchedulesHandler } from '../http/handler';
 import { InMemoryScheduleRepository } from '../repositories/in-memory-schedule-repository';
 

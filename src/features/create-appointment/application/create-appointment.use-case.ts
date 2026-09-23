@@ -1,4 +1,4 @@
-import type { Appointment } from '../domain/appointment';
+import { Appointment } from '../domain/appointment';
 import {
   TimeSlotUnavailableError,
   DoctorNotFoundError,
@@ -34,16 +34,16 @@ export class CreateAppointmentUseCase {
       throw new DoctorNotFoundError();
     }
 
-    if (!doctor.horarios_disponiveis.includes(input.dateTime)) {
+    if (!doctor.offersSlot(input.dateTime)) {
       throw new TimeSlotUnavailableError();
     }
 
-    const appointment: Appointment = {
+    const appointment = new Appointment({
       id: this.idGenerator.generate(),
       doctorId: doctor.id,
       patientName: input.patientName,
       dateTime: input.dateTime,
-    };
+    });
 
     const created =
       await this.appointmentRepository.createIfAvailable(appointment);

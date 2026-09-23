@@ -3,7 +3,7 @@ import {
   DoctorNotFoundError,
 } from '../../src/features/create-appointment/domain/errors';
 import { InMemoryAppointmentRepository } from '../../src/features/create-appointment/infra/repositories/in-memory-appointment-repository';
-import { CreateAppointmentUseCase } from '../../src/features/create-appointment/application/create-appointment';
+import { CreateAppointmentUseCase } from '../../src/features/create-appointment/application/create-appointment.use-case';
 
 describe('CreateAppointmentUseCase', () => {
   function createScenario() {

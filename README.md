@@ -58,13 +58,13 @@ npm run lint
 npm run format:check
 ```
 
-Os testes ponta a ponta fazem requisições HTTP reais. Com `npm run dev` ativo em outro terminal, execute `npm run test:e2e`. Reinicie o servidor antes de repeti-los, pois as reservas ficam em memória. Se a API estiver em outra URL, defina `E2E_BASE_URL` com a URL base completa, incluindo o estágio.
+Os testes ponta a ponta fazem requisições HTTP reais. Com `npm run dev` ativo em outro terminal, execute `npm run test:e2e`. Reinicie o servidor antes de repetir os testes, pois as reservas ficam em memória. Se a API estiver em outra URL, defina `E2E_BASE_URL` com a URL base completa, incluindo o estágio.
 
 ## Organização
 
 O código está organizado por funcionalidade em `src/features/list-schedules` e `src/features/create-appointment`. Cada uma contém seu caso de uso, portas e infraestrutura. Contratos e recursos compartilhados ficam em `src/shared`.
 
-O projeto aplica conceitos de DDD e Clean Architecture: o agendamento tem modelo e erros de domínio; os casos de uso dependem de portas; e as implementações de HTTP, AWS e repositórios em memória ficam na infraestrutura. As dependências concretas são injetadas nos casos de uso, que não conhecem API Gateway.
+O projeto aplica conceitos de DDD e Clean Architecture: `Doctor` verifica se oferece um horário, `Appointment` valida seus dados na criação e os casos de uso dependem de portas. As implementações de HTTP, AWS e repositórios em memória ficam na infraestrutura. As dependências concretas são injetadas nos casos de uso, que não conhecem API Gateway.
 
 As Lambdas chamam handlers HTTP finos. O `POST` valida o JSON com um schema Zod antes de executar o caso de uso. O decorator `@LogRequest` registra rota e status sem registrar dados do paciente.
 

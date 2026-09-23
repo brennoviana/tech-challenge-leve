@@ -1,6 +1,11 @@
-import type { Doctor } from '../../domain/doctor';
+export interface MockDoctor {
+  readonly id: number;
+  readonly nome: string;
+  readonly especialidade: string;
+  readonly horarios_disponiveis: readonly string[];
+}
 
-export function createMockDoctors(): Doctor[] {
+export function createMockDoctors(): MockDoctor[] {
   return [
     {
       id: 1,

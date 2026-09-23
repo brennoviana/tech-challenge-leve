@@ -1,9 +1,10 @@
-import { CreateAppointmentUseCase } from '../../src/features/create-appointment/application/create-appointment';
+import { CreateAppointmentUseCase } from '../../src/features/create-appointment/application/create-appointment.use-case';
 import type { AppointmentRepository } from '../../src/features/create-appointment/application/ports/appointment-repository';
 import {
   TimeSlotUnavailableError,
   DoctorNotFoundError,
 } from '../../src/features/create-appointment/domain/errors';
+import { Doctor } from '../../src/shared/domain/doctor';
 
 const request = {
   doctorId: 1,
@@ -13,12 +14,11 @@ const request = {
 
 function createScenario() {
   const repository: jest.Mocked<AppointmentRepository> = {
-    findDoctorById: jest.fn().mockResolvedValue({
-      id: 1,
-      nome: 'Dr. João Silva',
-      especialidade: 'Cardiologista',
-      horarios_disponiveis: ['2026-06-10 09:00'],
-    }),
+    findDoctorById: jest
+      .fn()
+      .mockResolvedValue(
+        new Doctor(1, 'Dr. João Silva', 'Cardiologista', ['2026-06-10 09:00']),
+      ),
     createIfAvailable: jest.fn().mockResolvedValue(true),
   };
   const generate = jest.fn().mockReturnValue('test-id');

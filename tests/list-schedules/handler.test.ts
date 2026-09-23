@@ -1,17 +1,13 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../../src/features/list-schedules/infra/aws/lambda';
 import { ListSchedulesHandler } from '../../src/features/list-schedules/infra/http/handler';
+import { Doctor } from '../../src/shared/domain/doctor';
 
 describe('GET /agendas', () => {
   it('returns the expected HTTP contract for available doctors', async () => {
     const handler = new ListSchedulesHandler({
       execute: async () => [
-        {
-          id: 1,
-          nome: 'Dr. João Silva',
-          especialidade: 'Cardiologista',
-          horarios_disponiveis: ['2026-06-10 09:00'],
-        },
+        new Doctor(1, 'Dr. João Silva', 'Cardiologista', ['2026-06-10 09:00']),
       ],
     });
 

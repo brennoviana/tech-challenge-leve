@@ -8,7 +8,7 @@ import { CreateAppointmentHandler } from '../../src/features/create-appointment/
 import type {
   CreateAppointmentInput,
   CreateAppointmentResult,
-} from '../../src/features/create-appointment/application/create-appointment';
+} from '../../src/features/create-appointment/application/create-appointment.use-case';
 
 const validAppointment = {
   medico_id: 1,
@@ -118,6 +118,27 @@ describe('POST /agendamento', () => {
     expect(JSON.parse(response.body)).toMatchObject({
       erro: 'Médico não encontrado',
     });
+  });
+
+  it('returns 500 without exposing unexpected errors', async () => {
+    const log = jest.spyOn(console, 'error').mockImplementation();
+    const respond = new CreateAppointmentHandler({
+      execute: async () => {
+        throw new Error('internal details');
+      },
+    });
+
+    try {
+      const response = await respond.handle({ body: payload });
+
+      expect(response.statusCode).toBe(500);
+      expect(JSON.parse(response.body)).toEqual({
+        erro: 'Erro interno do servidor',
+      });
+      expect(response.body).not.toContain('internal details');
+    } finally {
+      log.mockRestore();
+    }
   });
 
   it('wires the Lambda to the use case and generates a UUID', async () => {
