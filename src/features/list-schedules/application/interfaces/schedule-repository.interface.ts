@@ -1,5 +1,5 @@
 import type { Doctor } from '../../../../shared/domain/doctor';
 
-export interface ScheduleRepository {
+export interface ScheduleRepositoryInterface {
   list(): Promise<readonly Doctor[]>;
 }

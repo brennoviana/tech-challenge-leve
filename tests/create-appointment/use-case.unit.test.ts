@@ -1,5 +1,5 @@
 import { CreateAppointmentUseCase } from '../../src/features/create-appointment/application/create-appointment.use-case';
-import type { AppointmentRepository } from '../../src/features/create-appointment/application/ports/appointment-repository';
+import type { AppointmentRepositoryInterface } from '../../src/features/create-appointment/application/interfaces/appointment-repository.interface';
 import {
   TimeSlotUnavailableError,
   DoctorNotFoundError,
@@ -13,7 +13,7 @@ const request = {
 };
 
 function createScenario() {
-  const repository: jest.Mocked<AppointmentRepository> = {
+  const repository: jest.Mocked<AppointmentRepositoryInterface> = {
     findDoctorById: jest
       .fn()
       .mockResolvedValue(

@@ -1,8 +1,10 @@
 import type { Doctor } from '../../../shared/domain/doctor';
-import type { ScheduleRepository } from './ports/schedule-repository';
+import type { ScheduleRepositoryInterface } from './interfaces/schedule-repository.interface';
 
 export class ListSchedulesUseCase {
-  constructor(private readonly scheduleRepository: ScheduleRepository) {}
+  constructor(
+    private readonly scheduleRepository: ScheduleRepositoryInterface,
+  ) {}
 
   execute(): Promise<readonly Doctor[]> {
     return this.scheduleRepository.list();

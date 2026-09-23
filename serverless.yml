@@ -21,3 +21,13 @@ functions:
       - http:
           path: agendamento
           method: post
+  triage:
+    handler: src/features/triage/infra/aws/lambda.handler
+    timeout: 15
+    environment:
+      OPENAI_API_KEY: ${env:OPENAI_API_KEY, ''}
+      OPENAI_MODEL: ${env:OPENAI_MODEL, 'gpt-4o-mini'}
+    events:
+      - http:
+          path: triagem
+          method: post

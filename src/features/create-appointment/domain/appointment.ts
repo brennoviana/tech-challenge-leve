@@ -14,7 +14,7 @@ export class Appointment {
   constructor(props: AppointmentProps) {
     this.id = props.id;
     this.doctorId = props.doctorId;
-    this.patientName = props.patientName.trim();
+    this.patientName = props.patientName;
     this.dateTime = props.dateTime;
   }
 }

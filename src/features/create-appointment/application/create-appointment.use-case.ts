@@ -3,8 +3,8 @@ import {
   TimeSlotUnavailableError,
   DoctorNotFoundError,
 } from '../domain/errors';
-import type { AppointmentRepository } from './ports/appointment-repository';
-import type { IdGenerator } from './ports/id-generator';
+import type { AppointmentRepositoryInterface } from './interfaces/appointment-repository.interface';
+import type { IdGeneratorInterface } from './interfaces/id-generator.interface';
 
 export interface CreateAppointmentInput {
   readonly doctorId: number;
@@ -19,8 +19,8 @@ export interface CreateAppointmentResult {
 
 export class CreateAppointmentUseCase {
   constructor(
-    private readonly appointmentRepository: AppointmentRepository,
-    private readonly idGenerator: IdGenerator,
+    private readonly appointmentRepository: AppointmentRepositoryInterface,
+    private readonly idGenerator: IdGeneratorInterface,
   ) {}
 
   async execute(

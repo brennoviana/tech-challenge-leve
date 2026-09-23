@@ -1,9 +1,9 @@
 import type { Doctor } from '../../../../shared/domain/doctor';
 import { DoctorMapper } from '../../../../shared/infra/mappers/to-doctor.mapper';
 import { createMockDoctors } from '../../../../shared/infra/mocks/doctors';
-import type { ScheduleRepository } from '../../application/ports/schedule-repository';
+import type { ScheduleRepositoryInterface } from '../../application/interfaces/schedule-repository.interface';
 
-export class InMemoryScheduleRepository implements ScheduleRepository {
+export class InMemoryScheduleRepository implements ScheduleRepositoryInterface {
   private readonly doctors = createMockDoctors().map((doctor) =>
     DoctorMapper.toDomain(doctor),
   );

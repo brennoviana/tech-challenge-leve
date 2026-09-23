@@ -1,11 +1,11 @@
 import type { Doctor } from '../../../../shared/domain/doctor';
 import { DoctorMapper } from '../../../../shared/infra/mappers/to-doctor.mapper';
 import { createMockDoctors } from '../../../../shared/infra/mocks/doctors';
-import type { AppointmentRepository } from '../../application/ports/appointment-repository';
+import type { AppointmentRepositoryInterface } from '../../application/interfaces/appointment-repository.interface';
 import { Appointment } from '../../domain/appointment';
 import { DoctorNotFoundError } from '../../domain/errors';
 
-export class InMemoryAppointmentRepository implements AppointmentRepository {
+export class InMemoryAppointmentRepository implements AppointmentRepositoryInterface {
   private readonly doctors = createMockDoctors().map((doctor) =>
     DoctorMapper.toDomain(doctor),
   );
