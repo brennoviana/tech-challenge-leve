@@ -11,6 +11,7 @@ import {
   type HttpResponse,
 } from '../../../../shared/infra/http/json-response';
 import { LogRequest } from '../../../../shared/infra/http/log-request';
+import { logger } from '../../../../shared/infra/logging/logger';
 import {
   CreateAppointmentValidator,
   type CreateAppointmentRequest,
@@ -79,7 +80,7 @@ export class CreateAppointmentHandler {
         });
       }
 
-      console.error('Failed to create appointment', error);
+      logger.operationFailed('appointment.create', error);
       return jsonResponse(500, { erro: 'Erro interno do servidor' });
     }
   }

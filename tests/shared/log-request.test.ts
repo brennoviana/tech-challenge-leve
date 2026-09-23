@@ -1,5 +1,6 @@
 import type { HttpResponse } from '../../src/shared/infra/http/json-response';
 import { LogRequest } from '../../src/shared/infra/http/log-request';
+import { logger } from '../../src/shared/infra/logging/logger';
 
 class SuccessfulHandler {
   constructor(private readonly response: HttpResponse) {}
@@ -27,7 +28,7 @@ describe('@LogRequest', () => {
   let log: jest.SpyInstance;
 
   beforeEach(() => {
-    log = jest.spyOn(console, 'info').mockImplementation();
+    log = jest.spyOn(logger, 'requestCompleted').mockImplementation();
   });
 
   afterEach(() => {
@@ -41,10 +42,11 @@ describe('@LogRequest', () => {
     await expect(handler.handle({ body: 'Carlos Almeida' })).resolves.toBe(
       response,
     );
-    expect(log).toHaveBeenCalledWith({
-      route: 'POST /agendamento',
-      statusCode: 201,
-    });
+    expect(log).toHaveBeenCalledWith(
+      'POST /agendamento',
+      201,
+      expect.any(Number),
+    );
     expect(JSON.stringify(log.mock.calls)).not.toContain('Carlos Almeida');
   });
 
@@ -53,9 +55,6 @@ describe('@LogRequest', () => {
     const handler = new FailingHandler(failure);
 
     await expect(handler.handle()).rejects.toBe(failure);
-    expect(log).toHaveBeenCalledWith({
-      route: 'GET /agendas',
-      statusCode: null,
-    });
+    expect(log).toHaveBeenCalledWith('GET /agendas', null, expect.any(Number));
   });
 });

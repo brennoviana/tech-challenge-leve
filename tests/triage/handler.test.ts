@@ -1,5 +1,6 @@
 import { TriageUnavailableError } from '../../src/features/triage/application/errors';
 import { TriageHandler } from '../../src/features/triage/infra/http/handler';
+import { logger } from '../../src/shared/infra/logging/logger';
 
 const payload = JSON.stringify({
   sintomas: 'Sinto dor de cabeça há dois dias',
@@ -67,8 +68,8 @@ describe('POST /triagem', () => {
     expect(response.body).not.toContain('OpenAI');
   });
 
-  it('returns 500 without logging symptoms for an unexpected error', async () => {
-    const log = jest.spyOn(console, 'error').mockImplementation();
+  it('returns 500 without exposing an unexpected error', async () => {
+    const log = jest.spyOn(logger, 'operationFailed').mockImplementation();
     const handler = new TriageHandler({
       execute: async () => {
         throw new Error('sensitive details');
@@ -80,7 +81,7 @@ describe('POST /triagem', () => {
 
       expect(response.statusCode).toBe(500);
       expect(response.body).not.toContain('sensitive details');
-      expect(log).toHaveBeenCalledWith('Failed to perform triage');
+      expect(log).toHaveBeenCalledWith('triage.assess', expect.any(Error));
     } finally {
       log.mockRestore();
     }

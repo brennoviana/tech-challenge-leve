@@ -2,6 +2,7 @@ import type { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../../src/features/list-schedules/infra/aws/lambda';
 import { ListSchedulesHandler } from '../../src/features/list-schedules/infra/http/handler';
 import { Doctor } from '../../src/shared/domain/doctor';
+import { logger } from '../../src/shared/infra/logging/logger';
 
 describe('GET /agendas', () => {
   it('returns the expected HTTP contract for available doctors', async () => {
@@ -42,7 +43,7 @@ describe('GET /agendas', () => {
   });
 
   it('does not expose internal details when the use case fails', async () => {
-    const log = jest.spyOn(console, 'error').mockImplementation();
+    const log = jest.spyOn(logger, 'operationFailed').mockImplementation();
     const failingHandler = new ListSchedulesHandler({
       execute: async () => {
         throw new Error('internal details');

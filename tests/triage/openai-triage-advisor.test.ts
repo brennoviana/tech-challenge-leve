@@ -1,5 +1,6 @@
 import { TriageUnavailableError } from '../../src/features/triage/application/errors';
 import { OpenAiTriageAdvisor } from '../../src/features/triage/infra/llm/openai-triage-advisor';
+import { logger } from '../../src/shared/infra/logging/logger';
 
 const assessment = {
   prioridade: 'consulta_eletiva',
@@ -70,6 +71,39 @@ describe('OpenAiTriageAdvisor', () => {
       TriageUnavailableError,
     );
     expect(httpClient).not.toHaveBeenCalled();
+  });
+
+  it('logs only a safe provider code for a billing failure', async () => {
+    const log = jest
+      .spyOn(logger, 'externalServiceFailed')
+      .mockImplementation();
+    const response = new Response(
+      JSON.stringify({
+        error: {
+          code: 'credit_balance_exhausted',
+          message: 'sensitive provider details',
+        },
+      }),
+      { status: 429 },
+    );
+    const advisor = new OpenAiTriageAdvisor(
+      { apiKey: 'test-key', model: 'gpt-4o-mini' },
+      async () => response,
+    );
+
+    try {
+      await expect(advisor.assess('Manchas na pele')).rejects.toBeInstanceOf(
+        TriageUnavailableError,
+      );
+      expect(log).toHaveBeenCalledWith(
+        'openai',
+        429,
+        'credit_balance_exhausted',
+      );
+      expect(JSON.stringify(log.mock.calls)).not.toContain('sensitive');
+    } finally {
+      log.mockRestore();
+    }
   });
 
   it.each([

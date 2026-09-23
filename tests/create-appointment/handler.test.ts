@@ -5,6 +5,7 @@ import {
 } from '../../src/features/create-appointment/domain/errors';
 import { handler } from '../../src/features/create-appointment/infra/aws/lambda';
 import { CreateAppointmentHandler } from '../../src/features/create-appointment/infra/http/handler';
+import { logger } from '../../src/shared/infra/logging/logger';
 import type {
   CreateAppointmentInput,
   CreateAppointmentResult,
@@ -121,7 +122,7 @@ describe('POST /agendamento', () => {
   });
 
   it('returns 500 without exposing unexpected errors', async () => {
-    const log = jest.spyOn(console, 'error').mockImplementation();
+    const log = jest.spyOn(logger, 'operationFailed').mockImplementation();
     const respond = new CreateAppointmentHandler({
       execute: async () => {
         throw new Error('internal details');

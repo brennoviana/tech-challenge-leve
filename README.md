@@ -93,11 +93,11 @@ Os testes ponta a ponta fazem requisições HTTP reais. Com `npm run dev` ativo 
 
 O código está organizado por funcionalidade em `src/features/list-schedules`, `src/features/create-appointment` e `src/features/triage`. Cada uma contém seu caso de uso, interfaces e infraestrutura. Contratos e recursos compartilhados ficam em `src/shared`.
 
-O projeto aplica conceitos de DDD e Clean Architecture: `Doctor` verifica se oferece um horário, `Appointment` valida seus dados na criação e os casos de uso dependem de interfaces. As implementações de HTTP, AWS e repositórios em memória ficam na infraestrutura. As dependências concretas são injetadas nos casos de uso, que não conhecem API Gateway.
+O projeto aplica conceitos de DDD e Clean Architecture: `Doctor` verifica se oferece um horário, `Appointment` representa a reserva e os casos de uso dependem de interfaces. O payload de agendamento é validado com Zod na camada HTTP antes de chegar ao caso de uso. As implementações de HTTP, AWS e repositórios em memória ficam na infraestrutura. As dependências concretas são injetadas nos casos de uso, que não conhecem API Gateway.
 
 Na triagem, `TriageUseCase` depende de `TriageAdvisorInterface`. A implementação OpenAI fica em `infra/llm` e usa a [Responses API com Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs). A saída é validada antes de chegar ao caso de uso. Outra LLM pode substituir esse adapter implementando a mesma interface, sem mudar o contrato HTTP nem a aplicação. Falhas externas, respostas incompletas e recusas retornam `503`; a API não registra o texto dos sintomas em logs.
 
-As Lambdas chamam handlers HTTP finos. O `POST` valida o JSON com um schema Zod antes de executar o caso de uso. O decorator `@LogRequest` registra rota e status sem registrar dados do paciente.
+As Lambdas chamam handlers HTTP finos. O `POST` valida o JSON com um schema Zod antes de executar o caso de uso. O decorator `@LogRequest` registra rota, status e duração. Um wrapper do Winston escreve uma linha JSON por evento no console da Lambda, com nível, horário e serviço. `LOG_LEVEL` controla o nível mínimo (`error`, `warn`, `info` ou `debug`; padrão `info`). Erros registram o tipo, sem mensagem ou stack; sintomas, nomes de pacientes, corpos HTTP e chaves não entram nos logs. Falhas da OpenAI registram apenas status e código de erro seguro.
 
 **Limite do mock:** cada instância Lambda mantém seu próprio estado em memória. Uma reserva feita no `POST` não altera a lista retornada pelo `GET`, que usa outro repositório. Reinícios ou instâncias paralelas também não compartilham reservas nem garantem exclusividade global.
 

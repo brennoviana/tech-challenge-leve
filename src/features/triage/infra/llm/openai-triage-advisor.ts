@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { TriageUnavailableError } from '../../application/errors';
 import type { TriageAdvisorInterface } from '../../application/interfaces/triage-advisor.interface';
+import { logger } from '../../../../shared/infra/logging/logger';
 import {
   TRIAGE_PRIORITIES,
   type TriageAssessment,
@@ -32,6 +33,17 @@ const responseSchema = z.object({
     }),
   ),
 });
+
+const providerErrorSchema = z.object({
+  error: z.object({ code: z.string() }),
+});
+
+function safeProviderErrorCode(value: unknown): string | undefined {
+  const result = providerErrorSchema.safeParse(value);
+  const code = result.success ? result.data.error.code : undefined;
+
+  return code && /^[a-z][a-z0-9_]{0,79}$/.test(code) ? code : undefined;
+}
 
 const outputFormat = {
   type: 'json_schema',
@@ -78,6 +90,10 @@ export class OpenAiTriageAdvisor implements TriageAdvisorInterface {
 
   async assess(symptoms: string): Promise<TriageAssessment> {
     if (!this.config.apiKey?.trim()) {
+      logger.operationFailed(
+        'triage.configuration.missing_api_key',
+        new TriageUnavailableError(),
+      );
       throw new TriageUnavailableError();
     }
 
@@ -103,12 +119,23 @@ export class OpenAiTriageAdvisor implements TriageAdvisorInterface {
       );
 
       if (!response.ok) {
+        const providerError: unknown = await response.json().catch(() => null);
+        logger.externalServiceFailed(
+          'openai',
+          response.status,
+          safeProviderErrorCode(providerError),
+        );
         throw new TriageUnavailableError();
       }
 
       const data = responseSchema.safeParse(await response.json());
 
       if (!data.success) {
+        logger.externalServiceFailed(
+          'openai',
+          response.status,
+          'invalid_response',
+        );
         throw new TriageUnavailableError();
       }
 
@@ -118,12 +145,18 @@ export class OpenAiTriageAdvisor implements TriageAdvisorInterface {
         .find((item) => item.type === 'output_text');
 
       if (!content?.text) {
+        logger.externalServiceFailed('openai', response.status, 'empty_output');
         throw new TriageUnavailableError();
       }
 
       const assessment = assessmentSchema.safeParse(JSON.parse(content.text));
 
       if (!assessment.success) {
+        logger.externalServiceFailed(
+          'openai',
+          response.status,
+          'invalid_assessment',
+        );
         throw new TriageUnavailableError();
       }
 
@@ -132,7 +165,10 @@ export class OpenAiTriageAdvisor implements TriageAdvisorInterface {
         suggestedSpecialty: assessment.data.especialidade_sugerida,
         guidance: assessment.data.orientacao,
       };
-    } catch {
+    } catch (error: unknown) {
+      if (!(error instanceof TriageUnavailableError)) {
+        logger.operationFailed('triage.provider.request', error);
+      }
       throw new TriageUnavailableError();
     }
   }

@@ -4,6 +4,8 @@ licenseKey: ${env:SERVERLESS_LICENSE_KEY}
 provider:
   name: aws
   runtime: nodejs24.x
+  environment:
+    LOG_LEVEL: ${env:LOG_LEVEL, 'info'}
 
 plugins:
   - serverless-offline

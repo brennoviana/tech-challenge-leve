@@ -8,6 +8,7 @@ import {
   type HttpResponse,
 } from '../../../../shared/infra/http/json-response';
 import { LogRequest } from '../../../../shared/infra/http/log-request';
+import { logger } from '../../../../shared/infra/logging/logger';
 import { TriageValidator, type TriageRequest } from './validation';
 
 type Triage = {
@@ -50,7 +51,7 @@ export class TriageHandler {
         });
       }
 
-      console.error('Failed to perform triage');
+      logger.operationFailed('triage.assess', error);
       return jsonResponse(500, { erro: 'Erro interno do servidor' });
     }
   }

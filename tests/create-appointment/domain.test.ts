@@ -4,16 +4,14 @@ import { Doctor } from '../../src/shared/domain/doctor';
 const appointment = {
   id: 'test-id',
   doctorId: 1,
-  patientName: ' Carlos Almeida ',
+  patientName: 'Carlos Almeida',
   dateTime: '2026-06-10 09:00',
 };
 
 describe('Appointment domain', () => {
-  it('creates an appointment with a normalized patient name', () => {
+  it('creates an appointment', () => {
     const created = new Appointment(appointment);
-
     expect(created).toBeInstanceOf(Appointment);
-    expect(created.patientName).toBe('Carlos Almeida');
   });
 
   it('checks whether a doctor offers a time slot', () => {

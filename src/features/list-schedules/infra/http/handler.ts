@@ -4,6 +4,7 @@ import {
   type HttpResponse,
 } from '../../../../shared/infra/http/json-response';
 import { LogRequest } from '../../../../shared/infra/http/log-request';
+import { logger } from '../../../../shared/infra/logging/logger';
 
 type ListSchedules = {
   execute(): Promise<readonly Doctor[]>;
@@ -24,7 +25,7 @@ export class ListSchedulesHandler {
       const body: ListSchedulesResponse = { medicos: doctors };
       return jsonResponse(200, body);
     } catch (error: unknown) {
-      console.error('Failed to list schedules', error);
+      logger.operationFailed('schedules.list', error);
 
       return jsonResponse(500, { erro: 'Erro interno do servidor' });
     }
