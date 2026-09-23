@@ -6,10 +6,11 @@ import { Appointment } from '../../domain/appointment';
 import { DoctorNotFoundError } from '../../domain/errors';
 
 export class InMemoryAppointmentRepository implements AppointmentRepositoryInterface {
-  private readonly doctors = createMockDoctors().map((doctor) =>
-    DoctorMapper.toDomain(doctor),
-  );
   private readonly appointments = new Map<string, Appointment>();
+
+  private get doctors(): Doctor[] {
+    return createMockDoctors().map((doctor) => DoctorMapper.toDomain(doctor));
+  }
 
   async findDoctorById(id: number): Promise<Doctor | null> {
     const doctor = this.doctors.find((item) => item.id === id);

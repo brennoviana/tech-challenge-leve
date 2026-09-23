@@ -3,6 +3,15 @@ const baseUrl =
   `http://localhost:${process.env.HTTP_PORT ?? '3000'}/dev`;
 const apiKey = process.env.DEMO_API_KEY ?? '';
 
+interface SchedulesResponse {
+  medicos: Array<{
+    id: number;
+    nome: string;
+    especialidade: string;
+    horarios_disponiveis: string[];
+  }>;
+}
+
 describe('Appointment API over HTTP', () => {
   beforeAll(() => {
     if (!apiKey) {
@@ -24,7 +33,7 @@ describe('Appointment API over HTTP', () => {
     const response = await fetch(`${baseUrl}/agendas`, {
       headers: { 'x-api-key': apiKey },
     });
-    const body: unknown = await response.json();
+    const body = (await response.json()) as SchedulesResponse;
 
     expect(response.status).toBe(200);
     expect(response.headers.get('content-type')).toContain('application/json');
@@ -35,27 +44,41 @@ describe('Appointment API over HTTP', () => {
           nome: 'Dr. João Silva',
           especialidade: 'Cardiologista',
           horarios_disponiveis: [
-            '2026-06-10 09:00',
-            '2026-06-10 10:00',
-            '2026-06-10 11:00',
+            expect.stringMatching(/^\d{4}-\d{2}-\d{2} 09:00$/),
+            expect.stringMatching(/^\d{4}-\d{2}-\d{2} 10:00$/),
+            expect.stringMatching(/^\d{4}-\d{2}-\d{2} 11:00$/),
           ],
         },
         {
           id: 2,
           nome: 'Dra. Maria Souza',
           especialidade: 'Dermatologista',
-          horarios_disponiveis: ['2026-06-11 14:00', '2026-06-11 15:00'],
+          horarios_disponiveis: [
+            expect.stringMatching(/^\d{4}-\d{2}-\d{2} 14:00$/),
+            expect.stringMatching(/^\d{4}-\d{2}-\d{2} 15:00$/),
+          ],
         },
       ],
     });
   });
 
   it('creates an appointment and rejects a repeated booking', async () => {
+    const schedulesResponse = await fetch(`${baseUrl}/agendas`, {
+      headers: { 'x-api-key': apiKey },
+    });
+    expect(schedulesResponse.status).toBe(200);
+    const schedules = (await schedulesResponse.json()) as SchedulesResponse;
+    const dateTime = schedules.medicos[0]?.horarios_disponiveis[0];
+
+    if (!dateTime) {
+      throw new Error('A agenda do primeiro médico não contém horários.');
+    }
+
     const payload = JSON.stringify({
       agendamento: {
         medico_id: 1,
         paciente: 'Carlos Almeida',
-        data_horario: '2026-06-10 09:00',
+        data_horario: dateTime,
       },
     });
     const send = () =>
@@ -77,7 +100,7 @@ describe('Appointment API over HTTP', () => {
         ),
         medico: 'Dr. João Silva',
         paciente: 'Carlos Almeida',
-        data_horario: '2026-06-10 09:00',
+        data_horario: dateTime,
       },
     });
 

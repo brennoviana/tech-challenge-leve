@@ -10,11 +10,12 @@ import type {
   CreateAppointmentInput,
   CreateAppointmentResult,
 } from '../../src/features/create-appointment/application/create-appointment.use-case';
+import { createMockDoctors } from '../../src/shared/infra/mocks/doctors';
 
 const validAppointment = {
   medico_id: 1,
   paciente: 'Carlos Almeida',
-  data_horario: '2026-06-10 09:00',
+  data_horario: createMockDoctors()[0]!.horarios_disponiveis[0]!,
 };
 
 const payload = JSON.stringify({ agendamento: validAppointment });
@@ -46,7 +47,7 @@ describe('POST /agendamento', () => {
     expect(received).toEqual({
       doctorId: 1,
       patientName: 'Carlos Almeida',
-      dateTime: '2026-06-10 09:00',
+      dateTime: validAppointment.data_horario,
     });
     expect(response.statusCode).toBe(201);
     expect(response.headers).toEqual({
@@ -58,7 +59,7 @@ describe('POST /agendamento', () => {
         id: 'test-uuid',
         medico: 'Dr. João Silva',
         paciente: 'Carlos Almeida',
-        data_horario: '2026-06-10 09:00',
+        data_horario: validAppointment.data_horario,
       },
     });
   });

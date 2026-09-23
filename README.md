@@ -11,13 +11,25 @@ npm ci
 cp .env.example .env
 ```
 
-Preencha `SERVERLESS_LICENSE_KEY` e `OPENAI_API_KEY` no `.env` ou defina essas variáveis no terminal. A chave OpenAI é necessária para `POST /triagem`; as outras rotas funcionam sem ela. `OPENAI_MODEL` permite escolher outro modelo compatível com Structured Outputs e usa `gpt-4o-mini` como padrão. O `.env` está ignorado pelo Git. Depois, inicie a API:
+Configure as variáveis conforme o uso. O `.env` está ignorado pelo Git:
+
+| Variável                 | Quando usar                                                                                              | Padrão                                                    |
+| ------------------------ | -------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| `SERVERLESS_LICENSE_KEY` | Obrigatória para iniciar o Serverless v4 e fazer deploy                                                  | Nenhum                                                    |
+| `OPENAI_API_KEY`         | Necessária para `POST /triagem`; as outras rotas funcionam sem ela                                       | Nenhum                                                    |
+| `OPENAI_MODEL`           | Opcional: modelo compatível com Structured Outputs                                                       | `gpt-4o-mini`                                             |
+| `LOG_LEVEL`              | Opcional: nível mínimo dos logs (`error`, `warn`, `info`, `debug`)                                       | `info`                                                    |
+| `HTTP_PORT`              | Opcional: porta do servidor local                                                                        | `3000`                                                    |
+| `DEMO_API_KEY`           | Necessária para os exemplos com `curl` e os testes HTTP; copie a chave exibida pelo `serverless-offline` | Nenhum                                                    |
+| `E2E_BASE_URL`           | Opcional: URL base para os testes HTTP, incluindo o estágio                                              | `http://localhost:3000/dev` (usa `HTTP_PORT` se definido) |
+
+Depois, inicie a API:
 
 ```bash
 npm run dev
 ```
 
-Use a URL exibida pelo `serverless-offline`. A porta HTTP local é definida por `HTTP_PORT` no `.env` (padrão `3000`); altere esse valor e reinicie o servidor para usar outra porta. Com o valor padrão, as rotas ficam em `http://localhost:3000/dev`. Se mudar a porta, ajuste também `base_url` no Insomnia; os testes ponta a ponta usam `HTTP_PORT` automaticamente. Para usar os exemplos com `curl`, copie a chave exibida no terminal como `Key with token` e defina `DEMO_API_KEY` no seu terminal. Essa chave serve apenas para o ambiente local; a AWS usa uma chave própria no deploy.
+Por padrão, a API local fica em `http://localhost:3000/dev`. Se alterar `HTTP_PORT`, use a nova porta na URL e no Insomnia. Para os exemplos com `curl`, copie a chave `Key with token` exibida pelo `serverless-offline`:
 
 ```bash
 export DEMO_API_KEY='cole-a-chave-exibida-no-terminal'
@@ -33,7 +45,7 @@ export DEMO_API_KEY='cole-a-chave-exibida-no-terminal'
 
 ### Collection do Insomnia
 
-Se preferir testar pelo Insomnia, importe o arquivo [insomnia-collection.yaml](doc/insomnia-collection.yaml) em **Import > File**. A collection contém as três rotas e seus exemplos de payload. Em **Base Environment**, preencha `api_key` com a chave exibida pelo `serverless-offline` e mantenha `base_url` como `http://localhost:3000/dev`. Para testar o deploy, troque `base_url` pela URL do estágio (incluindo `/demo`) e use a chave mostrada por `npx serverless info --stage demo`. A collection não inclui chaves reais; a variável `api_key` é preenchida no Insomnia, separadamente da variável de terminal `DEMO_API_KEY`.
+Se preferir testar pelo Insomnia, importe o arquivo [insomnia-collection.yaml](doc/insomnia-collection.yaml) em **Import > File**. A collection contém as três rotas e seus exemplos de payload. Em **Base Environment**, preencha `api_key` com a chave exibida pelo `serverless-offline` e mantenha `base_url` como `http://localhost:3000/dev`. Execute `GET /agendas` e copie um horário do médico 1 diretamente para o campo `data_horario` no corpo de `POST /agendamento`.
 
 Para listar as agendas:
 
@@ -42,16 +54,16 @@ curl -i http://localhost:3000/dev/agendas \
   -H "x-api-key: $DEMO_API_KEY"
 ```
 
-Para criar um agendamento:
+Para criar um agendamento, copie um valor de `horarios_disponiveis` retornado por `GET /agendas` e substitua `HORARIO_DO_GET`:
 
 ```bash
 curl -i -X POST http://localhost:3000/dev/agendamento \
   -H 'Content-Type: application/json' \
   -H "x-api-key: $DEMO_API_KEY" \
-  -d '{"agendamento":{"medico_id":1,"paciente":"Carlos Almeida","data_horario":"2026-06-10 09:00"}}'
+  -d '{"agendamento":{"medico_id":1,"paciente":"Carlos Almeida","data_horario":"HORARIO_DO_GET"}}'
 ```
 
-O `GET` retorna `medicos` com `id`, `nome`, `especialidade` e `horarios_disponiveis`. O `POST` retorna `mensagem` e `agendamento` com UUID, médico, paciente e horário. O formato de data e hora aceito é `AAAA-MM-DD HH:mm`; as datas do mock reproduzem o exemplo do enunciado.
+O `GET` retorna `medicos` com `id`, `nome`, `especialidade` e `horarios_disponiveis`. O `POST` retorna `mensagem` e `agendamento` com UUID, médico, paciente e horário. O formato de data e hora aceito é `AAAA-MM-DD HH:mm`. Os cinco horários do mock são gerados de 1 a 5 dias após a data atual em `America/Sao_Paulo`; consulte `GET /agendas` para obter um horário válido antes de agendar.
 
 Para solicitar uma orientação inicial de triagem:
 
@@ -62,7 +74,7 @@ curl -i -X POST http://localhost:3000/dev/triagem \
   -d '{"sintomas":"Estou com manchas na pele há dois dias."}'
 ```
 
-Todas as rotas exigem o header `x-api-key`; sem uma chave válida, o API Gateway responde `403` antes de chamar a Lambda. No deploy, consulte a chave gerada com `npx serverless info --stage demo` e compartilhe o valor apenas com os avaliadores. O plano de uso define uma cota-alvo compartilhada de 100 chamadas por dia, com taxa de 1 chamada por segundo e pico de 2. Esses limites são aproximados e não garantem um teto de gastos; a API key também não substitui autenticação. Não coloque a chave em uma página pública nem no repositório. Após a demonstração, revogue a chave ou remova o ambiente.
+Todas as rotas exigem o header `x-api-key`; sem uma chave válida, o API Gateway responde `403` antes de chamar a Lambda. No deploy, consulte a chave gerada com `npx serverless info --stage demo` e compartilhe o valor apenas com os avaliadores. O plano de uso define uma cota-alvo compartilhada de 100 chamadas por dia, com taxa de 2 chamadas por segundo e pico de 3. Esses limites são aproximados e não garantem um teto de gastos; a API key também não substitui autenticação. Não coloque a chave em uma página pública nem no repositório. Após a demonstração, revogue a chave ou remova o ambiente.
 
 O campo `sintomas` aceita texto de 3 a 1000 caracteres. A resposta contém `triagem.prioridade` (`emergencia`, `avaliacao_breve` ou `consulta_eletiva`), `triagem.especialidade_sugerida`, `triagem.orientacao` e `aviso`. Por exemplo:
 
@@ -83,7 +95,7 @@ A triagem é uma orientação automatizada, sem diagnóstico, prescrição ou ga
 | ----------------------------------------- | ------ |
 | Chave de demonstração ausente ou inválida | `403`  |
 
-| Situação no `POST`                     | Status |
+| Situação no `POST /agendamento`        | Status |
 | -------------------------------------- | ------ |
 | Payload ausente ou inválido            | `400`  |
 | Médico inexistente                     | `404`  |
@@ -120,10 +132,10 @@ As Lambdas chamam handlers HTTP finos. O `POST` valida o JSON com um schema Zod 
 
 ## Deploy
 
-Configure suas credenciais AWS, `SERVERLESS_LICENSE_KEY` e `OPENAI_API_KEY` no ambiente de deploy. Depois execute:
+Configure suas credenciais AWS e as variáveis `SERVERLESS_LICENSE_KEY` e `OPENAI_API_KEY` no ambiente de deploy. As credenciais podem vir de um perfil configurado (`AWS_PROFILE`) ou de `AWS_ACCESS_KEY_ID` e `AWS_SECRET_ACCESS_KEY` (com `AWS_SESSION_TOKEN` se forem temporárias). Depois execute:
 
 ```bash
-npx serverless deploy --stage demo
+npx serverless deploy
 ```
 
-O `serverless.yml` configura API Gateway REST e runtime `nodejs24.x`. O deploy não é necessário para executar a API localmente. Para consultar a chave e a URL do ambiente de demonstração, use `npx serverless info --stage demo` e mantenha a chave fora de canais públicos.
+O `serverless.yml` configura API Gateway REST e runtime `nodejs24.x`. O deploy não é necessário para executar a API localmente. Para consultar a chave e a URL do ambiente de demonstração, use `npx serverless info` e mantenha a chave fora de canais públicos.

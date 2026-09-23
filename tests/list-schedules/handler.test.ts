@@ -38,7 +38,9 @@ describe('GET /agendas', () => {
 
     expect(response.statusCode).toBe(200);
     expect(body.medicos).toHaveLength(2);
-    expect(body.medicos[0]?.horarios_disponiveis).toContain('2026-06-10 09:00');
+    expect(body.medicos[0]?.horarios_disponiveis[0]).toMatch(
+      /^\d{4}-\d{2}-\d{2} 09:00$/,
+    );
     expect(body.medicos[1]?.id).toBe(2);
   });
 

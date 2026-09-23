@@ -24,7 +24,7 @@ collection:
           "agendamento": {
             "medico_id": 1,
             "paciente": "Carlos Almeida",
-            "data_horario": "2026-06-10 09:00"
+            "data_horario": ""
           }
         }
     headers:
