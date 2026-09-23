@@ -1,0 +1,23 @@
+service: leve-saude-api
+licenseKey: ${env:SERVERLESS_LICENSE_KEY}
+
+provider:
+  name: aws
+  runtime: nodejs24.x
+
+plugins:
+  - serverless-offline
+
+functions:
+  listSchedules:
+    handler: src/features/list-schedules/infra/aws/lambda.handler
+    events:
+      - http:
+          path: agendas
+          method: get
+  createAppointment:
+    handler: src/features/create-appointment/infra/aws/lambda.handler
+    events:
+      - http:
+          path: agendamento
+          method: post

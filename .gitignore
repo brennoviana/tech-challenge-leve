@@ -1,0 +1,8 @@
+node_modules/
+.serverless/
+.serverless-offline/
+coverage/
+dist/
+.env
+.env.*
+!.env.example

@@ -1,0 +1,5 @@
+node_modules
+.serverless
+.serverless-offline
+package-lock.json
+PASSO_A_PASSO.md
