@@ -111,7 +111,7 @@ describe('Appointment API over HTTP', () => {
     expect(repeatedBody).toEqual({
       erro: 'Horário indisponível',
       mensagem:
-        'O horário solicitado não está mais disponível para este médico.',
+        'O horário solicitado não está disponível para este médico.',
     });
   });
 

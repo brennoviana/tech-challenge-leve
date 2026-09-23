@@ -69,7 +69,7 @@ export class CreateAppointmentHandler {
         return jsonResponse(409, {
           erro: 'Horário indisponível',
           mensagem:
-            'O horário solicitado não está mais disponível para este médico.',
+            'O horário solicitado não está disponível para este médico.',
         });
       }
 
