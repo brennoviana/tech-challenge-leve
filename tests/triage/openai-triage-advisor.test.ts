@@ -1,4 +1,4 @@
-import { TriageUnavailableError } from '../../src/features/triage/application/errors';
+import { TriageUnavailableError } from '../../src/features/triage/domain/errors';
 import { OpenAiTriageAdvisor } from '../../src/features/triage/infra/llm/openai-triage-advisor';
 import { logger } from '../../src/shared/infra/logging/logger';
 

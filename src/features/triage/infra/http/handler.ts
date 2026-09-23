@@ -2,7 +2,7 @@ import type {
   TriageInput,
   TriageResult,
 } from '../../application/triage.use-case';
-import { TriageUnavailableError } from '../../application/errors';
+import { TriageUnavailableError } from '../../domain/errors';
 import {
   jsonResponse,
   type HttpResponse,

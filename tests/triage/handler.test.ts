@@ -1,4 +1,4 @@
-import { TriageUnavailableError } from '../../src/features/triage/application/errors';
+import { TriageUnavailableError } from '../../src/features/triage/domain/errors';
 import { TriageHandler } from '../../src/features/triage/infra/http/handler';
 import { logger } from '../../src/shared/infra/logging/logger';
 

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { TriageUnavailableError } from '../../application/errors';
+import { TriageUnavailableError } from '../../domain/errors';
 import type { TriageAdvisorInterface } from '../../application/interfaces/triage-advisor.interface';
 import { logger } from '../../../../shared/infra/logging/logger';
 import {
