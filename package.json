@@ -7,6 +7,7 @@
   },
   "scripts": {
     "dev": "serverless offline",
+    "demo": "serverless deploy --stage demo",
     "typecheck": "tsc --noEmit",
     "test": "jest --runInBand",
     "test:e2e": "node --env-file=.env ./node_modules/jest/bin/jest.js --config jest.e2e.config.cjs --runInBand",

@@ -1,6 +1,9 @@
 service: leve-saude-api
 licenseKey: ${env:SERVERLESS_LICENSE_KEY}
 
+package:
+  individually: true
+
 provider:
   name: aws
   runtime: nodejs24.x
@@ -27,6 +30,10 @@ custom:
 functions:
   listSchedules:
     handler: src/features/list-schedules/infra/aws/lambda.handler
+    package:
+      patterns:
+        - '!src/features/create-appointment/**'
+        - '!src/features/triage/**'
     events:
       - http:
           path: agendas
@@ -34,6 +41,10 @@ functions:
           private: true
   createAppointment:
     handler: src/features/create-appointment/infra/aws/lambda.handler
+    package:
+      patterns:
+        - '!src/features/list-schedules/**'
+        - '!src/features/triage/**'
     events:
       - http:
           path: agendamento
@@ -41,6 +52,10 @@ functions:
           private: true
   triage:
     handler: src/features/triage/infra/aws/lambda.handler
+    package:
+      patterns:
+        - '!src/features/list-schedules/**'
+        - '!src/features/create-appointment/**'
     timeout: 15
     environment:
       OPENAI_API_KEY: ${env:OPENAI_API_KEY, ''}
